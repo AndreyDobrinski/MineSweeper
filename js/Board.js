@@ -48,7 +48,7 @@ function renderBoard(board) {
             var className = getClassName({ i: i, j: j })
             var showColor = (cell.isShown) ? 'selected' : ''
             // when isShown is true , add color from 'selected
-            strHtml += `<td class = "cell ${className} ${showColor}" onclick="cellClicked(${i},${j})" oncontextmenu="cellMarked(${i},${j})">`
+            strHtml += `<td class = "cell ${className} ${showColor}" onclick="cellClicked(this,${i},${j})" oncontextmenu="cellMarked(${i},${j})">`
 
 
 

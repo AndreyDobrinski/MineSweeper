@@ -7,8 +7,11 @@ var gBoard;
 
 var gLevel = {
     SIZE: 4,
-    MINES: 2
-};;
+    MINES: 2,
+    HINTS: 3,
+    LIVES: 3,
+    SAFE_CLICKS: 3
+};
 var gGame;
 var gFirstClick;
 
@@ -22,29 +25,27 @@ const FLAG = '🚩'
 
 function init() {
     restart()
-
-    // gLevel = {
-    //     SIZE: 4,
-    //     MINES: 2
-    // };
-
     gGame = {
         isOn: true,
         shownCount: 0,
         markedCount: 0,
-        secsPassed: 0
+        secsPassed: 0,
+        isHint: false
+
     }
 
     gFirstClick = true
 
     gBoard = createBoard()
-    // console.table(gBoard);
+    console.table(gBoard);
     renderBoard(gBoard)
-
+    renderHints()
+    renderLives()
+    renderSafeClick()
 }
 
 function restart() {
-
+    gLevel.LIVES = 3
     var elTime = document.querySelector('.time')
     elTime.innerText = 'Time :'
     var elBtn = document.querySelector('.smily')
@@ -72,19 +73,30 @@ function createRandomMinesPos(board, amountOfMines) {
 
 
 
-function cellClicked(i, j) {
+function cellClicked(elCell, i, j) {
     if (!gGame.isOn) return
     // unclickable when game over
     var currCell = gBoard[i][j]
     var realCellsCount = gLevel.SIZE ** 2 - gLevel.MINES
+
+    if (!currCell.isShown) {
+        gGame.shownCount++
+    }
+    // bug num 2 got fixed
+
+
+    if (gGame.isHint === true) {
+        showHint(elCell, i, j)
+        return
+    }
+
     currCell.isShown = true
-    gGame.shownCount++
+    // had to put it above the (if hint) to fix bug num 6
 
-
-    if (currCell.minesAroundCount === 0) {
+    if (currCell.minesAroundCount === 0 && !currCell.isMine) {
         expandShown(gBoard, i, j)
     }
-    // BUG WAS HERE
+    // adding (!currCell.isMine) fixed bug num 4
 
     if (gFirstClick) {
         gTimeInterval = setInterval(setTimer, 1000)
@@ -98,7 +110,14 @@ function cellClicked(i, j) {
 
 
     if (currCell.isMine) {
-        doGameLost()
+        gLevel.LIVES--
+        // removes life
+        gGame.shownCount--
+        // so that it wont count the shown as bombs
+        if (gLevel.LIVES === 0) {
+            // only when there are no lives , do game over
+            doGameLost()
+        }
     } else if (gGame.shownCount === realCellsCount) {
         doGameWon()
     }
@@ -110,6 +129,8 @@ function cellClicked(i, j) {
 
     console.log(gGame.shownCount);
     renderBoard(gBoard)
+    renderLives()
+
     // change to renderCell later maybe
 }
 
@@ -165,12 +186,28 @@ function showMines() {
 
 //  BUGS FOUND:
 // 1. if you have a cell flaged and then you click on the bomb , if the cell was flaged it will show both
-//the flag and the bomb //////// FIXED ////// //////
+//the flag and the bomb (IMPORTANT)
+/////////////////////////////////////// FIXED ///////////////////////////////////////
 
 // 2. if you continu clicking on the same cell that was revealed , 
 // victory will show up
+/////////////////////////////////////// FIXED ///////////////////////////////////////
 
+// 3. having a  bug with expandShown where the victory doesent show up(IMPORTANT)
+/////////////////////////////////////// FIXED ///////////////////////////////////////
 
+// 4. a small bug , when bomb is clicked , it expends cell too sometimes(not major since game is over anyway)
+//  update its not IMPORTANT since we have lives
+/////////////////////////////////////// FIXED ///////////////////////////////////////
+
+// 5. when clicking on the hint and going to the mine placement,
+// it shows number instead of mine ,  same goes with numbers , if there is a 
+// showncount 2 it will show 1 (IMPORTANT)
+
+// 6. when clicking hint on cell then going to the other cell , it reveals the previous cell too(IMPORTANT)
+/////////////////////////////////////// FIXED ///////////////////////////////////////
+
+// 7. safeClick bug , it sometimes shows the shown cell too
 
 function setGameLvl(elBtn) {
     var boardSize = elBtn.value
@@ -199,9 +236,6 @@ function expandShown(board, row, col) {
     }
 }
 
-// 3. having a  bug with expandShown where the victory doesent show up
-//// FIXED //////
-
 
 
 function doGameWon() {
@@ -225,5 +259,10 @@ function doGameLost() {
 
 
 
-//  add 3 lives
+
 // work  more on css
+
+
+
+// missing feuture : 
+// 1. first click is never a mine
