@@ -72,3 +72,16 @@ window.oncontextmenu = () => {
     return false;
 }
 // to disable left click
+
+
+
+
+
+
+
+
+
+
+
+
+

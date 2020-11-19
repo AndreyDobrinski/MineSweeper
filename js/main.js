@@ -21,6 +21,8 @@ var gTimeInterval;
 const MINE = '💣'
 const EMPTY = ''
 const FLAG = '🚩'
+const LIFE = '❤️'
+const HINT = '💡'
 
 
 function init() {
@@ -85,10 +87,17 @@ function cellClicked(elCell, i, j) {
     // bug num 2 got fixed
 
 
+    // if (gGame.isHint === true) {
+    //     showHint(elCell, i, j)
+    //     return
+    // }
+
     if (gGame.isHint === true) {
-        showHint(elCell, i, j)
+        showHint(i, j)
         return
     }
+
+
 
     currCell.isShown = true
     // had to put it above the (if hint) to fix bug num 6
@@ -203,11 +212,13 @@ function showMines() {
 // 5. when clicking on the hint and going to the mine placement,
 // it shows number instead of mine ,  same goes with numbers , if there is a 
 // showncount 2 it will show 1 (IMPORTANT)
+/////////////////////////////////////// FIXED ///////////////////////////////////////
 
 // 6. when clicking hint on cell then going to the other cell , it reveals the previous cell too(IMPORTANT)
 /////////////////////////////////////// FIXED ///////////////////////////////////////
 
 // 7. safeClick bug , it sometimes shows the shown cell too
+/////////////////////////////////////// FIXED ///////////////////////////////////////
 
 function setGameLvl(elBtn) {
     var boardSize = elBtn.value
